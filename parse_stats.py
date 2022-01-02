@@ -28,13 +28,14 @@ for col in int_cols:
 df = df.drop(df[df['Name'] == 'failsafe-triggered'].index)
 
 # Data sanity
+first_scan = df['Date'].min()
+last_scan = df['Date'].max()
 df.sort_values(['Governor ID', 'Date'], inplace=True)
 
 kill_columns = ['T1 Kills', 'T2 Kills', 'T3 Kills', 'T4 Kills', 'T5 Kills']
 kill_weights = [1/5, 2, 4, 10, 20]
 
 
-#df['KP By Kills'] = (df['T1 Kills'] // 5) + df['T2 Kills'] * 2 + df['T3 Kills'] * 4 + df['T4 Kills'] * 10 + df['T5 Kills'] * 20
 df['KP By Kills'] = np.floor(df[kill_columns] * kill_weights).sum(axis=1)
 df['TK By Kills'] = df[kill_columns].sum(axis=1)
 
@@ -48,6 +49,27 @@ for col in growing_cols:
     df[f"{col}_diff"] = grouped_df[col].diff().fillna(0)
 br = df.loc[(df[diff_cols] < 0).any(axis=1)]
 br.to_csv('diff_mismatch.csv')
-br_imp = br[(br['Date'] == '2021-11-23') | (br['Date'] == '2021-12-29')]
+br_imp = br[(br['Date'] == first_scan) | (br['Date'] == last_scan)]
 br_imp.to_csv('diff_mismatch_important.csv')
-#print(df[df['Dead Troops_diff'] < 0])
+
+# No real pre-kvk stats. A lot of people only have stats from z4 opening so we'll have to fudge them a little bit..
+
+no_baseline_stats = grouped_df.filter(lambda g: (g['Date'] > '2021-12-09').all()).drop_duplicates(subset=['Governor ID'])
+no_baseline_stats.to_csv('no_baseline_stats.csv')
+
+# Bad baseline stats
+
+bbs = grouped_df.first()
+bbs.to_csv('bbs.csv')
+pd.concat([bbs[bbs['TK By Kills'] != bbs['Total Kills']]]).to_csv('bbs_bad.csv')
+bbs.to_csv('bbs_bad.csv')
+
+
+# Calculate rewards
+
+contribs = {
+    'T4 Kills' : 1,
+    'T5 Kills' : 2,
+    'Total Deads' : 6,
+    'RSS Assistance' : 0.004
+}
