@@ -15,7 +15,7 @@ col_types = {
     'Dead Troops':'float'
 }
 
-df = pd.read_csv("2338_20211229.csv", thousands=',', encoding='utf-8', dtype=col_types)
+df = pd.read_csv("2338_newest_cleanup.csv", thousands=',', encoding='utf-8', dtype=col_types)
 
 # Some data cleanup
 str_cols = ['Name', 'ASCII Name', 'Governor ID', 'Alliance']
@@ -37,12 +37,13 @@ kill_weights = [1/5, 2, 4, 10, 20]
 
 
 df['KP By Kills'] = np.floor(df[kill_columns] * kill_weights).sum(axis=1)
-df['TK By Kills'] = df[kill_columns].sum(axis=1)
 
-df[df['TK By Kills'] != df['Total Kills']].to_csv("tk_mismatch.csv")
 df[df['KP By Kills'] != df['Kill Points']].to_csv("kp_mismatch.csv")
 
-growing_cols = ['Total Kills', 'Kill Points'] + kill_columns + ['RSS Assistance', 'Alliance Helps', 'Dead Troops']
+non_zero_cols = ['Kill Points', 'RSS Assistance', 'Dead Troops', 'T5 Kills', 'T4 Kills']
+df[(df[non_zero_cols] == 0).any(axis=1)].to_csv('zeroes.csv')
+
+growing_cols = ['Kill Points'] + kill_columns + ['RSS Assistance', 'Dead Troops']
 diff_cols = [f"{x}_diff" for x in growing_cols]
 grouped_df = df.groupby(['Governor ID'])
 for col in growing_cols:
@@ -61,8 +62,7 @@ no_baseline_stats.to_csv('no_baseline_stats.csv')
 
 bbs = grouped_df.first()
 bbs.to_csv('bbs.csv')
-pd.concat([bbs[bbs['TK By Kills'] != bbs['Total Kills']]]).to_csv('bbs_bad.csv')
-bbs.to_csv('bbs_bad.csv')
+pd.concat([bbs[bbs['KP By Kills'] != bbs['Kill Points']]]).to_csv('bbs_bad.csv')
 
 
 # Calculate rewards
@@ -70,6 +70,14 @@ bbs.to_csv('bbs_bad.csv')
 contribs = {
     'T4 Kills' : 1,
     'T5 Kills' : 2,
-    'Total Deads' : 6,
-    'RSS Assistance' : 0.004
+    'Dead Troops' : 6
 }
+
+df["KVK contrib"] = 0
+for col, weight in contribs.items():
+    df[f"{col} Contrib"] = grouped_df[col].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * weight)
+    df["KVK contrib"] += df[f"{col} Contrib"]
+
+df.groupby('Governor ID').last().to_csv('contrib.csv')
+
+print(df[(df['Date'] == '2021-12-01') & (df["Power"] > 0)]["Power"].min())
