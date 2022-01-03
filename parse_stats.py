@@ -3,19 +3,19 @@ import numpy as np
 
 col_types = {
     'Governor ID': 'string',
-    'Total Kills': 'float',
-    'Kill Points': 'float',
-    'T1 Kills':'float',
-    'T2 Kills':'float',
-    'T3 Kills':'float',
-    'T4 Kills':'float',
-    'T5 Kills':'float',
-    'RSS Assistance':'float',
-    'Alliance Helps':'float',
-    'Dead Troops':'float'
+    'Total Kills': 'int',
+    'Kill Points': 'int',
+    'T1 Kills':'int',
+    'T2 Kills':'int',
+    'T3 Kills':'int',
+    'T4 Kills':'int',
+    'T5 Kills':'int',
+    'RSS Assistance':'int',
+    'Alliance Helps':'int',
+    'Dead Troops':'int'
 }
 
-df = pd.read_csv("2338_newest_cleanup.csv", thousands=',', encoding='utf-8', dtype=col_types)
+df = pd.read_csv("2338_newest_sanitized.csv", thousands=',', encoding='utf-8', dtype=col_types)
 
 # Some data cleanup
 str_cols = ['Name', 'ASCII Name', 'Governor ID', 'Alliance']
@@ -41,7 +41,8 @@ df['KP By Kills'] = np.floor(df[kill_columns] * kill_weights).sum(axis=1)
 df[df['KP By Kills'] != df['Kill Points']].to_csv("kp_mismatch.csv")
 
 non_zero_cols = ['Kill Points', 'RSS Assistance', 'Dead Troops', 'T5 Kills', 'T4 Kills']
-df[(df[non_zero_cols] == 0).any(axis=1)].to_csv('zeroes.csv')
+zr = df[(df[non_zero_cols] == 0).any(axis=1)]
+zr[(zr['Date'] == first_scan) | (zr['Date'] == last_scan)].to_csv('zeroes.csv')
 
 growing_cols = ['Kill Points'] + kill_columns + ['RSS Assistance', 'Dead Troops']
 diff_cols = [f"{x}_diff" for x in growing_cols]
@@ -77,7 +78,11 @@ df["KVK contrib"] = 0
 for col, weight in contribs.items():
     df[f"{col} Contrib"] = grouped_df[col].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * weight)
     df["KVK contrib"] += df[f"{col} Contrib"]
+df[f"RSS Contrib"] = grouped_df['RSS Assistance'].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * weight)
+df["KVK contrib + RSS"] += df[f"RSS Contrib"]
 
-df.groupby('Governor ID').last().to_csv('contrib.csv')
+contrib = df.groupby('Governor ID').last().sort_values(by='KVK contrib')
+contrib['Ranking'] = contrib.reset_index().index
+contrib[['Governor ID', 'Name', 'Date', 'KVK contrib', 'RSS Contrib', 'KVK contrib + RSS']].to_csv('contrib.csv')
 
-print(df[(df['Date'] == '2021-12-01') & (df["Power"] > 0)]["Power"].min())
+# print(df[(df['Date'] == '2021-12-01') & (df["Power"] > 0)]["Power"].min())

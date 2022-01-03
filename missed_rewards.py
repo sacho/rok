@@ -20,10 +20,10 @@ df_good = pd.read_csv("contrib.csv", thousands=',', encoding='utf-8', dtype=col_
 df_bad = pd.read_csv("2338_circles.csv", thousands=",", encoding='utf-8', dtype=col_types)
 
 df_good = df_good[['Date', 'Name', 'Governor ID', 'KVK contrib']].rename(columns={ 'Date' : 'Date_Good', 'KVK contrib': 'KVK contrib'}).sort_values(by=['KVK contrib'], ascending=False)
-df_good['New Ranking'] = df_good.reset_index().index
+df_good['New Ranking'] = df_good.reset_index().index.astype('int')
 df_bad = df_bad[['Gov Id', 'Formula']].sort_values(by=['Formula'], ascending=False)
-df_bad['Old Ranking'] = df_bad.reset_index().index
+df_bad['Old Ranking'] = df_bad.reset_index().index.astype('int')
 
 df = df_good.merge(df_bad, left_on='Governor ID', right_on='Gov Id', how='outer').sort_values(by='Old Ranking')
 
-df.to_csv('out.csv')
+df[['Governor ID', 'Name', 'KVK contrib', 'Formula', 'Old Ranking', 'New Ranking']].to_csv('out.csv')
