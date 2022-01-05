@@ -10,7 +10,7 @@ col_types = {
     'T3 Kills':'int',
     'T4 Kills':'int',
     'T5 Kills':'int',
-    'RSS Assistance':'int',
+    'RSS Assistance':'int64',
     'Alliance Helps':'int',
     'Dead Troops':'int'
 }
@@ -42,7 +42,7 @@ df[df['KP By Kills'] != df['Kill Points']].to_csv("kp_mismatch.csv")
 
 non_zero_cols = ['Kill Points', 'RSS Assistance', 'Dead Troops', 'T5 Kills', 'T4 Kills']
 zr = df[(df[non_zero_cols] == 0).any(axis=1)]
-zr[(zr['Date'] == first_scan) | (zr['Date'] == last_scan)].to_csv('zeroes.csv')
+zr.to_csv('zeroes.csv')
 
 growing_cols = ['Kill Points'] + kill_columns + ['RSS Assistance', 'Dead Troops']
 diff_cols = [f"{x}_diff" for x in growing_cols]
@@ -71,18 +71,24 @@ pd.concat([bbs[bbs['KP By Kills'] != bbs['Kill Points']]]).to_csv('bbs_bad.csv')
 contribs = {
     'T4 Kills' : 1,
     'T5 Kills' : 2,
-    'Dead Troops' : 6
 }
 
-df["KVK contrib"] = 0
+df["KVK Contrib"] = 0
+df["Kills Contrib"] = 0
 for col, weight in contribs.items():
     df[f"{col} Contrib"] = grouped_df[col].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * weight)
-    df["KVK contrib"] += df[f"{col} Contrib"]
-df[f"RSS Contrib"] = grouped_df['RSS Assistance'].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * weight)
-df["KVK contrib + RSS"] += df[f"RSS Contrib"]
+    df["Kills Contrib"] += df[f"{col} Contrib"]
+df[f"Deads Contrib"] = grouped_df['Dead Troops'].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * 6)
+df[f"RSS Contrib"] = grouped_df['RSS Assistance'].transform(lambda x: min(1000000000, (x.iloc[-1] - x.iloc[0])) * 0.004)
+df[f"PreKVK Power"] = grouped_df['Power'].transform(lambda x: x.iloc[0])
+df[f"Fighting Contrib"] = df["Kills Contrib"] + df["Deads Contrib"]
+df["KVK Contrib"] = df["Fighting Contrib"] + df[["Fighting Contrib", "RSS Contrib"]].min(axis=1)
 
-contrib = df.groupby('Governor ID').last().sort_values(by='KVK contrib')
-contrib['Ranking'] = contrib.reset_index().index
-contrib[['Governor ID', 'Name', 'Date', 'KVK contrib', 'RSS Contrib', 'KVK contrib + RSS']].to_csv('contrib.csv')
+
+banned = pd.read_csv('banned_ids.csv', thousands=',', encoding='utf-8', dtype=col_types)
+contrib = df[~df['Governor ID'].isin(banned['Governor ID'])].groupby('Governor ID').last().sort_values(by='KVK Contrib', ascending=False)
+contrib['Ranking'] = contrib.reset_index().index.astype('int') + 1
+contrib[['Name', 'Date', 'Ranking', 'KVK Contrib', 'Kills Contrib', 'Deads Contrib', 'RSS Contrib']].to_csv('contrib.csv')
+contrib[['Name', 'Date', 'Ranking', 'KVK Contrib', 'Kills Contrib', 'Deads Contrib', 'RSS Contrib', 'Power', 'PreKVK Power']].sort_values(by='PreKVK Power', ascending=False).to_csv('contrib_1.csv')
 
 # print(df[(df['Date'] == '2021-12-01') & (df["Power"] > 0)]["Power"].min())
