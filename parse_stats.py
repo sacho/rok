@@ -61,9 +61,10 @@ no_baseline_stats.to_csv('no_baseline_stats.csv')
 
 # Bad baseline stats
 
-bbs = grouped_df.first()
-bbs.to_csv('bbs.csv')
-pd.concat([bbs[bbs['KP By Kills'] != bbs['Kill Points']]]).to_csv('bbs_bad.csv')
+bs = grouped_df.first()
+bs.to_csv('bbs.csv')
+bbs = bs[(bs['KP By Kills'] != bs['Kill Points']) | (bs['Dead Troops'] == 0) | (bs['RSS Assistance'] == 0)]
+bbs.to_csv('bbs_bad.csv')
 
 
 # Calculate rewards
@@ -78,6 +79,11 @@ df["Kills Contrib"] = 0
 for col, weight in contribs.items():
     df[f"{col} Contrib"] = grouped_df[col].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * weight)
     df["Kills Contrib"] += df[f"{col} Contrib"]
+
+kills = ['T1 Kills', 'T2 Kills', 'T3 Kills', 'T4 Kills', 'T5 Kills']
+df['Total Kills'] = 0
+for col in kills:
+    df['Total Kills'] += grouped_df[col].transform(lambda x: (x.iloc[-1] - x.iloc[0]))
 df[f"Deads Contrib"] = grouped_df['Dead Troops'].transform(lambda x: (x.iloc[-1] - x.iloc[0]) * 6)
 df[f"RSS Contrib"] = grouped_df['RSS Assistance'].transform(lambda x: min(1000000000, (x.iloc[-1] - x.iloc[0])) * 0.004)
 df[f"PreKVK Power"] = grouped_df['Power'].transform(lambda x: x.iloc[0])
@@ -89,6 +95,6 @@ banned = pd.read_csv('banned_ids.csv', thousands=',', encoding='utf-8', dtype=co
 contrib = df[~df['Governor ID'].isin(banned['Governor ID'])].groupby('Governor ID').last().sort_values(by='KVK Contrib', ascending=False)
 contrib['Ranking'] = contrib.reset_index().index.astype('int') + 1
 contrib[['Name', 'Date', 'Ranking', 'KVK Contrib', 'Kills Contrib', 'Deads Contrib', 'RSS Contrib']].to_csv('contrib.csv')
-contrib[['Name', 'Date', 'Ranking', 'KVK Contrib', 'Kills Contrib', 'Deads Contrib', 'RSS Contrib', 'Power', 'PreKVK Power']].sort_values(by='PreKVK Power', ascending=False).to_csv('contrib_1.csv')
+contrib[['Name', 'Date', 'Ranking', 'KVK Contrib', 'Kills Contrib', 'Deads Contrib', 'RSS Contrib', 'Power', 'PreKVK Power', 'Total Kills']].sort_values(by='PreKVK Power', ascending=False).to_csv('contrib_1.csv')
 
 # print(df[(df['Date'] == '2021-12-01') & (df["Power"] > 0)]["Power"].min())
