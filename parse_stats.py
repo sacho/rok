@@ -3,16 +3,16 @@ import numpy as np
 
 col_types = {
     'Governor ID': 'string',
-    'Total Kills': 'int',
-    'Kill Points': 'int',
-    'T1 Kills':'int',
-    'T2 Kills':'int',
-    'T3 Kills':'int',
-    'T4 Kills':'int',
-    'T5 Kills':'int',
+    'Total Kills': 'int64',
+    'Kill Points': 'int64',
+    'T1 Kills':'int64',
+    'T2 Kills':'int64',
+    'T3 Kills':'int64',
+    'T4 Kills':'int64',
+    'T5 Kills':'int64',
     'RSS Assistance':'int64',
-    'Alliance Helps':'int',
-    'Dead Troops':'int'
+    'Alliance Helps':'int64',
+    'Dead Troops':'int64'
 }
 
 df = pd.read_csv("2338_newest_sanitized.csv", thousands=',', encoding='utf-8', dtype=col_types)
