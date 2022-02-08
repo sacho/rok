@@ -1,0 +1,101 @@
+Good morning everyone!
+Here's the plan we want to get onto ASAP. We have two types of alliance - main shell and farm shell, that we care about in Z2.
+For both types of alliances:
+- *IMPORTANT* do not just accept just anyone - we want known people's alts/farms in them. Z2 has a lot of fragile farms that can be burned, and you can cause a lot of havoc by tapping flags the alliance is touching. Make sure you confirm the identity of players that are joining.
+- 1 troop build flags all the time to gather credits - for the farms, this is so we can hand out tps, and for the mains, the credits will be used during war. If there's no space, start deleting 1 flag and replacing it.
+- gold pit always
+- besides that try to keep the alliances full at all times with active accounts. Especially in the mains, you want to check alliance tech donations regularly.
+- get people to periodically fix their TPs as alliance territory shifts.
+- each alliance will get 2-3 R4s to help manage it in a rotation.
+
+Farms:
+- Tech focus: Dev.
+- Flag focus: avoid taking rss nodes(leave mostly for mains), otherwise flag to fill designated territory.
+
+Mains:
+- Tech Focus: Territory -> Dev(GA2) -> War
+- Flag focus: create farmable blobs to let people easily farm on territory so you can keep pushing tech and flags.
+- The mains will be dropping a fort or flagging to get access to Z3.
+
+Specific plans for each alliance:
+
+SAMOS
+Shared pass(used to get access to Z3): x526 y734
+
+Rt38
+- build up their main blob(x536 y817)
+- move gold pit closer to the middle of their blob rather than to the edge
+- standby for directions to delete some flags to give access to the pass
+
+F38S
+- drop a fort to take territory around x422 y793. Standby for other fort placement
+
+RB38
+- fill territory from pass(x257 y670) north(recenter gold pit eventually)
+- standby for fort drop for z3 access
+
+RH38
+- get control but standby for instructions
+- low territory in Z2
+
+RC38
+- build from RB pass down
+- primary focus is Z1 on the other side of their pass
+
+F38s
+- fill out territory around their gold pit
+
+IZUMO
+Shared pass: x646 y464
+
+Rv38
+- build up territory in rightmost side(F38i can delete some flags there to give Rv38 priority)
+- standby for access to Z3
+
+F38i
+- may need to delete some flags to allow alliances Z3 access, otherwise OK
+
+rd38
+- build up their z2 territory around the fort and to the left
+
+Rg38
+- build to and prepare to take 467 280(needs coordination with Ri)
+
+RN38
+- build around their fort - replace OGFA flags(organize with OGFA)
+
+F38I
+- drop fort to the right for more territory
+
+RJ38
+- standby for plan eep
+
+(this zone needs a bit more work)
+
+NAXOS
+Shared pass: x677 y700
+
+RM38
+- finish blobbing their Z2 territory - take some from F38N if needed
+- standby for fort drop for Z3 access
+
+F38N
+- model alliance doesnt need to do anything more ^_^
+
+Meow
+- expand into Woof and east territory to the pass
+
+Woof
+- delete territory in Z2
+
+RE38
+- expand north from their fort onto their territory
+- recenter gold pit a bit to the south
+
+F38n
+- fort drop at territory where RX fort is(standby for this to coordinate with RX)
+- fix flag color to farm(red)
+
+Rw38
+- fill in their territory
+- fix flag color to pink(main)

@@ -22,8 +22,6 @@ df['Power / KVK Contrib'] = df['PreKVK Power'] / df['KVK Contrib']
 df.sort_values(by='Power').to_csv('aaa.csv')
 
 sm = df[df['Ranking'] < 800][['Governor ID', 'Name', 'Ranking', 'Power','PreKVK Power', 'KVK Contrib']]
-sm1 = sm
-sm2 = df[(df['Ranking'] < 800) & (df['Ranking'] > 300)][['Name', 'Power', 'PreKVK Power', 'KVK Contrib']]
 sm = sm.sort_values(by='PreKVK Power', ascending=False)
 # sm.to_csv('bbb.csv')
 
@@ -35,28 +33,23 @@ def get_fn(sm):
     return p
 
 p1 = get_fn(sm)
-p2 = get_fn(sm1)
 print(p1)
-print(p2)
 sm['PowerForScaling'] = (sm['PreKVK Power'] + sm['Power']) / 2
-sm.sort_values(by='PowerForScaling', ascending=False)
+sm = sm.sort_values(by='PowerForScaling', ascending=False)
 power_scaler = sm.iloc[300]['PowerForScaling']
 print(power_scaler)
 print(p1(power_scaler))
-print(p2(power_scaler))
 print(p1(20000000))
-print(p2(20000000))
 sm['PS1'] = p1(sm['PreKVK Power'])
-sm['PS2'] = p2(sm['PreKVK Power'])
 scaler_effectiveness = 0.25
 sm['Scaler'] = (p1(power_scaler) / p1(sm['PowerForScaling'].apply(lambda x: max(25000000, x))))
-sm['Scaler_Down'] = (sm['Scaler'] - 1) * scaler_effectiveness + 1
-sm['Scaled Score'] = sm['KVK Contrib'] * sm['Scaler_Down']
-df['Scaler_Down'] = sm.iloc[300:]['Scaler_Down']
+sm['Scaler_LowPower'] = (sm['Scaler'] - 1) * scaler_effectiveness + 1
+sm['Scaled Score'] = sm['KVK Contrib'] * sm['Scaler_LowPower']
+df['Scaler_LowPower'] = sm.iloc[300:]['Scaler_LowPower']
 df['Scaled Score'] = sm.iloc[300:]['Scaled Score']
 df['Scaled Score'] = df[['Scaled Score', 'KVK Contrib']].max(axis=1)
-df[['Governor ID', 'Name', 'Ranking', 'Power', 'PreKVK Power', 'KVK Contrib', 'Scaler_Down', 'Scaled Score']].sort_values(by='Scaled Score', ascending=False).to_csv('ddd.csv')
-#sm.iloc[300:][['Governor ID', 'Name', 'Ranking', 'PreKVK Power', 'KVK Contrib', 'Scaler_Down', 'Scaled Score']].to_csv('eee.csv')
+df[['Governor ID', 'Name', 'Ranking', 'Power', 'PreKVK Power', 'KVK Contrib', 'Scaler_LowPower', 'Scaled Score']].sort_values(by='Scaled Score', ascending=False).to_csv('ddd.csv')
+#sm.iloc[300:][['Governor ID', 'Name', 'Ranking', 'PreKVK Power', 'KVK Contrib', 'Scaler_LowPower', 'Scaled Score']].to_csv('eee.csv')
 x = sm['PreKVK Power'] / 1000000
 y = sm['KVK Contrib'] / 1000000
 c = np.where(sm['PreKVK Power'] > 45000000, "yellow", "purple")
